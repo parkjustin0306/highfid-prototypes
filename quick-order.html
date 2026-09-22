@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quick order</title>
+<style>
+:root{
+  --bg:#F1EFE8; --surface:#FFFFFF; --line:#D9D7CE; --line-strong:#B4B2A9;
+  --text:#2C2C2A; --text-sec:#5F5E5A; --text-muted:#888780;
+  --accent:#0F6E56; --accent-fg:#FFFFFF; --accent-tint:#E1F5EE; --accent-tint-text:#085041;
+  --danger:#A32D2D;
+  --radius:6px;
+}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1C1C1A; --surface:#242422; --line:#3A3A37; --line-strong:#4A4A46;
+    --text:#F1EFE8; --text-sec:#B4B2A9; --text-muted:#888780;
+    --accent:#5DCAA5; --accent-fg:#04342C; --accent-tint:#0F3A30; --accent-tint-text:#9FE1CB;
+    --danger:#F09595;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1C1C1A; --surface:#242422; --line:#3A3A37; --line-strong:#4A4A46;
+  --text:#F1EFE8; --text-sec:#B4B2A9; --text-muted:#888780;
+  --accent:#5DCAA5; --accent-fg:#04342C; --accent-tint:#0F3A30; --accent-tint-text:#9FE1CB;
+  --danger:#F09595;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{
+  margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg); color:var(--text);
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+#app{max-width:440px;margin:0 auto;min-height:100vh;background:var(--bg);}
+header.topbar{
+  position:sticky; top:0; z-index:5; background:var(--bg);
+  padding:14px 16px 10px; border-bottom:0.5px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.brand{font-size:15px; font-weight:600; letter-spacing:0.2px;}
+.loc-chip{font-size:12px; color:var(--text-sec); display:flex; align-items:center; gap:4px; cursor:pointer;}
+.cart-btn{font-size:13px; color:var(--accent-fg); background:var(--accent); border-radius:14px; padding:5px 11px; cursor:pointer; border:none;}
+main{padding:14px 16px 90px;}
+h1.screen-title{font-size:20px; font-weight:600; margin:4px 0 4px;}
+p.screen-sub{font-size:13px; color:var(--text-sec); margin:0 0 16px;}
+.list{border:0.5px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface);}
+.list-row{
+  padding:13px 14px; border-bottom:0.5px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+}
+.list-row:last-child{border-bottom:none;}
+.list-row:active{background:var(--bg);}
+.row-title{font-size:15px; font-weight:500;}
+.row-sub{font-size:12px; color:var(--text-muted); margin-top:2px;}
+.row-price{font-size:13px; color:var(--text-sec); white-space:nowrap; margin-left:10px;}
+.chev{color:var(--text-muted); margin-left:8px;}
+.section-label{font-size:12px; font-weight:600; color:var(--text-sec); text-transform:uppercase; letter-spacing:0.4px; margin:18px 0 8px;}
+.pill-row{display:flex; gap:8px; flex-wrap:wrap;}
+.pill{
+  border:0.5px solid var(--line-strong); border-radius:5px; padding:8px 12px;
+  font-size:13px; color:var(--text-sec); cursor:pointer; background:var(--surface);
+}
+.pill.active{border:1.5px solid var(--accent); color:var(--accent-tint-text); background:var(--accent-tint); font-weight:500;}
+.pill-delta{font-size:11px; color:var(--text-muted); margin-left:4px;}
+.pill.active .pill-delta{color:var(--accent-tint-text);}
+.sticky-bar{
+  position:sticky; bottom:0; background:var(--bg); border-top:0.5px solid var(--line);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); max-width:440px; margin:0 auto;
+}
+.btn-primary{
+  width:100%; background:var(--accent); color:var(--accent-fg); border:none; border-radius:var(--radius);
+  padding:14px; font-size:15px; font-weight:600; cursor:pointer;
+}
+.btn-primary:active{opacity:0.85;}
+.btn-secondary{
+  width:100%; background:transparent; color:var(--text-sec); border:0.5px solid var(--line-strong); border-radius:var(--radius);
+  padding:12px; font-size:14px; cursor:pointer; margin-top:8px;
+}
+.link-btn{color:var(--accent); font-size:13px; cursor:pointer; font-weight:500;}
+.back-link{font-size:13px; color:var(--text-sec); cursor:pointer; margin-bottom:10px; display:inline-block;}
+.cart-item{border:0.5px solid var(--line); border-radius:var(--radius); background:var(--surface); padding:12px; margin-bottom:8px;}
+.cart-item-top{display:flex; justify-content:space-between; align-items:flex-start;}
+.cart-item-title{font-size:14px; font-weight:500;}
+.cart-item-desc{font-size:12px; color:var(--text-muted); margin-top:3px; line-height:1.4;}
+.cart-item-price{font-size:14px; font-weight:600; margin-left:10px; white-space:nowrap;}
+.item-actions{display:flex; gap:14px; margin-top:8px;}
+.item-actions span{font-size:12px; color:var(--text-sec); cursor:pointer;}
+.item-actions span.remove{color:var(--danger);}
+.totals{border-top:0.5px solid var(--line); margin-top:14px; padding-top:10px;}
+.total-row{display:flex; justify-content:space-between; font-size:13px; color:var(--text-sec); padding:3px 0;}
+.total-row.grand{font-size:16px; font-weight:600; color:var(--text); padding-top:6px;}
+.field{margin-bottom:12px;}
+.field label{font-size:12px; color:var(--text-sec); display:block; margin-bottom:5px;}
+.field input{
+  width:100%; padding:11px 12px; border:0.5px solid var(--line-strong); border-radius:var(--radius);
+  font-size:14px; background:var(--surface); color:var(--text);
+}
+.field input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-tint);}
+.field-row{display:flex; gap:10px;}
+.field-row .field{flex:1;}
+.error-text{font-size:12px; color:var(--danger); margin-top:4px;}
+.status-wrap{text-align:center; padding:30px 10px 10px;}
+.status-steps{display:flex; justify-content:center; gap:10px; margin:20px 0;}
+.status-dot{width:8px; height:8px; border-radius:50%; background:var(--line-strong); transition:background 0.3s;}
+.status-dot.active{background:var(--accent);}
+.status-card{border:0.5px solid var(--line); border-radius:8px; background:var(--surface); padding:24px 16px; margin-top:6px;}
+.status-headline{font-size:19px; font-weight:600; margin-bottom:4px;}
+.status-sub{font-size:13px; color:var(--text-sec);}
+.status-card.ready{border-color:var(--accent); background:var(--accent-tint);}
+.status-card.ready .status-headline{color:var(--accent-tint-text);}
+.order-id{font-size:12px; color:var(--text-muted); margin-top:16px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var DRINKS = [
+  {id:'brewed', name:'Brewed', price:3.50, desc:'Drip coffee, full-bodied and simple', milk:true},
+  {id:'espresso', name:'Espresso', price:2.75, desc:'Bold single shot, quick and strong', milk:false},
+  {id:'cappuccino', name:'Cappuccino', price:5.00, desc:'Espresso with steamed milk foam', milk:true}
+];
+var SIZES = [{id:'normale',label:'Normale',delta:0},{id:'gigante',label:'Gigante',delta:1.5},{id:'troppo',label:'Troppo',delta:2.0}];
+var MILKS = ['Whole','Oat','Almond','Non-fat','None'];
+var SWEET = ['None','Sugar','Honey','Vanilla syrup'];
+var TEMPS = ['Hot','Iced'];
+var SHOT_PRICE = 0.75;
+var LOCATIONS = [
+  {name:'Beachside — Original', sub:'12 Shoreline Ave'},
+  {name:'Harbor Walk', sub:'88 Marina Blvd'},
+  {name:'Palm Grove', sub:'204 Palm St'},
+  {name:'Sunset Pier', sub:'1 Pier Rd'}
+];
+
+var S = { screen:'location', location:null, cart:[], config:null, editIndex:null, statusStage:0 };
+
+function money(n){ return '$' + n.toFixed(2); }
+
+function calcPrice(cfg){
+  var d = DRINKS.find(function(x){return x.id===cfg.drinkId;});
+  var sz = SIZES.find(function(x){return x.id===cfg.size;});
+  var p = d.price + sz.delta + (cfg.shot ? SHOT_PRICE : 0);
+  return p;
+}
+
+function go(screen){ S.screen = screen; render(); window.scrollTo(0,0); }
+
+function selectLocation(name){ S.location = name; go('menu'); }
+
+function openDrink(drinkId, editIndex){
+  var d = DRINKS.find(function(x){return x.id===drinkId;});
+  if(editIndex !== undefined && editIndex !== null){
+    S.config = Object.assign({}, S.cart[editIndex]);
+    S.editIndex = editIndex;
+  } else {
+    S.config = { drinkId:drinkId, size:'normale', milk: d.milk ? 'Whole' : 'None', sweet:'None', temp:'Hot', shot:false };
+    S.editIndex = null;
+  }
+  go('detail');
+}
+
+function setCfg(field, value){ S.config[field] = value; render(); }
+function toggleShot(){ S.config.shot = !S.config.shot; render(); }
+
+function addToOrder(){
+  var item = Object.assign({}, S.config);
+  item.price = calcPrice(item);
+  if(S.editIndex !== null){ S.cart[S.editIndex] = item; } else { S.cart.push(item); }
+  S.editIndex = null;
+  go('menu');
+}
+
+function removeItem(i){ S.cart.splice(i,1); render(); }
+function editItem(i){ openDrink(S.cart[i].drinkId, i); }
+
+function subtotal(){ return S.cart.reduce(function(sum,i){return sum + i.price;},0); }
+function tax(){ return subtotal() * 0.08; }
+function grandTotal(){ return subtotal() + tax(); }
+
+var paymentErrors = {};
+function validatePayment(){
+  paymentErrors = {};
+  var card = document.getElementById('pf-card');
+  var exp = document.getElementById('pf-exp');
+  var cvv = document.getElementById('pf-cvv');
+  var name = document.getElementById('pf-name');
+  if(!card.value || card.value.replace(/\s/g,'').length < 12) paymentErrors.card = 'Enter a valid card number';
+  if(!exp.value) paymentErrors.exp = 'Required';
+  if(!cvv.value || cvv.value.length < 3) paymentErrors.cvv = 'Required';
+  if(!name.value.trim()) paymentErrors.name = 'Required';
+  if(Object.keys(paymentErrors).length){ render(); return; }
+  placeOrder();
+}
+
+function placeOrder(){
+  S.orderNumber = Math.floor(1000 + Math.random()*9000);
+  S.statusStage = 0;
+  go('status');
+  setTimeout(function(){ if(S.screen==='status'){ S.statusStage = 1; render(); } }, 2200);
+  setTimeout(function(){ if(S.screen==='status'){ S.statusStage = 2; render(); } }, 5200);
+}
+
+function newOrder(){ S.cart=[]; S.location=null; S.statusStage=0; go('location'); }
+
+function cartBadge(){
+  return S.cart.length ? '<button class="cart-btn" onclick="go(\'cart\')">Cart · ' + S.cart.length + '</button>' : '';
+}
+
+function topbar(showLocation){
+  var loc = showLocation ? '<span class="loc-chip" onclick="go(\'location\')">' + S.location + ' <span class="chev">›</span></span>' : '<span></span>';
+  return '<header class="topbar"><span class="brand">Tideline Coffee</span>' + '</header>' +
+    (showLocation ? '<div style="max-width:440px;margin:0 auto;padding:10px 16px 0;display:flex;justify-content:space-between;align-items:center;">' + loc + cartBadge() + '</div>' : '');
+}
+
+function renderLocation(){
+  var rows = LOCATIONS.map(function(l){
+    return '<div class="list-row" onclick="selectLocation(\'' + l.name + '\')">' +
+      '<div><div class="row-title">' + l.name + '</div><div class="row-sub">' + l.sub + '</div></div>' +
+      '<span class="chev">›</span></div>';
+  }).join('');
+  return '<header class="topbar"><span class="brand">Tideline Coffee</span></header>' +
+    '<main><h1 class="screen-title">Choose a location</h1><p class="screen-sub">Pick where you\'ll pick up your order.</p>' +
+    '<div class="list">' + rows + '</div></main>';
+}
+
+function renderMenu(){
+  var rows = DRINKS.map(function(d){
+    return '<div class="list-row" onclick="openDrink(\'' + d.id + '\')">' +
+      '<div><div class="row-title">' + d.name + '</div><div class="row-sub">' + d.desc + '</div></div>' +
+      '<div class="row-price">' + money(d.price) + '</div><span class="chev">›</span></div>';
+  }).join('');
+  var checkoutBar = S.cart.length ?
+    '<div class="sticky-bar"><button class="btn-primary" onclick="go(\'cart\')">Proceed to checkout — ' + money(grandTotal()) + '</button></div>' : '';
+  return topbar(true) +
+    '<main><h1 class="screen-title">Menu</h1><p class="screen-sub">3 drinks available at this location.</p>' +
+    '<div class="list">' + rows + '</div></main>' + checkoutBar;
+}
+
+function renderDetail(){
+  var cfg = S.config;
+  var d = DRINKS.find(function(x){return x.id===cfg.drinkId;});
+  var price = calcPrice(cfg);
+  var sizeHtml = SIZES.map(function(s){
+    return '<div class="pill ' + (cfg.size===s.id?'active':'') + '" onclick="setCfg(\'size\',\'' + s.id + '\')">' + s.label +
+      (s.delta ? '<span class="pill-delta">+' + money(s.delta) + '</span>' : '') + '</div>';
+  }).join('');
+  var milkHtml = d.milk ? MILKS.map(function(m){
+    return '<div class="pill ' + (cfg.milk===m?'active':'') + '" onclick="setCfg(\'milk\',\'' + m + '\')">' + m + '</div>';
+  }).join('') : '';
+  var sweetHtml = SWEET.map(function(sw){
+    return '<div class="pill ' + (cfg.sweet===sw?'active':'') + '" onclick="setCfg(\'sweet\',\'' + sw + '\')">' + sw + '</div>';
+  }).join('');
+  var tempHtml = TEMPS.map(function(t){
+    return '<div class="pill ' + (cfg.temp===t?'active':'') + '" onclick="setCfg(\'temp\',\'' + t + '\')">' + t + '</div>';
+  }).join('');
+  return topbar(false) +
+    '<main><span class="back-link" onclick="go(\'menu\')">‹ Menu</span>' +
+    '<h1 class="screen-title">' + d.name + '</h1><p class="screen-sub">' + d.desc + '</p>' +
+    '<div class="section-label">Size</div><div class="pill-row">' + sizeHtml + '</div>' +
+    (d.milk ? '<div class="section-label">Milk</div><div class="pill-row">' + milkHtml + '</div>' : '') +
+    '<div class="section-label">Sweetener</div><div class="pill-row">' + sweetHtml + '</div>' +
+    '<div class="section-label">Temperature</div><div class="pill-row">' + tempHtml + '</div>' +
+    '<div class="section-label">Extra</div><div class="pill-row"><div class="pill ' + (cfg.shot?'active':'') + '" onclick="toggleShot()">Extra shot <span class="pill-delta">+' + money(SHOT_PRICE) + '</span></div></div>' +
+    '</main>' +
+    '<div class="sticky-bar"><button class="btn-primary" onclick="addToOrder()">' + (S.editIndex!==null?'Update order — ':'Add to order — ') + money(price) + '</button></div>';
+}
+
+function renderCart(){
+  if(!S.cart.length){
+    return topbar(true) + '<main><h1 class="screen-title">Your order</h1><p class="screen-sub">No items yet.</p>' +
+      '<span class="link-btn" onclick="go(\'menu\')">Browse the menu →</span></main>';
+  }
+  var items = S.cart.map(function(item,i){
+    var d = DRINKS.find(function(x){return x.id===item.drinkId;});
+    var sz = SIZES.find(function(x){return x.id===item.size;});
+    var descParts = [sz.label, item.milk, item.sweet!=='None'?item.sweet:null, item.temp, item.shot?'Extra shot':null].filter(Boolean);
+    return '<div class="cart-item"><div class="cart-item-top">' +
+      '<div><div class="cart-item-title">' + d.name + '</div><div class="cart-item-desc">' + descParts.join(', ') + '</div></div>' +
+      '<div class="cart-item-price">' + money(item.price) + '</div></div>' +
+      '<div class="item-actions"><span onclick="editItem(' + i + ')">Edit</span><span class="remove" onclick="removeItem(' + i + ')">Remove</span></div></div>';
+  }).join('');
+  return topbar(true) +
+    '<main><h1 class="screen-title">Your order</h1>' + items +
+    '<span class="link-btn" onclick="go(\'menu\')">+ Add another drink</span>' +
+    '<div class="totals">' +
+    '<div class="total-row"><span>Subtotal</span><span>' + money(subtotal()) + '</span></div>' +
+    '<div class="total-row"><span>Tax</span><span>' + money(tax()) + '</span></div>' +
+    '<div class="total-row grand"><span>Total</span><span>' + money(grandTotal()) + '</span></div>' +
+    '</div></main>' +
+    '<div class="sticky-bar"><button class="btn-primary" onclick="go(\'payment\')">Proceed to payment</button></div>';
+}
+
+function renderPayment(){
+  var e = paymentErrors;
+  return topbar(false) +
+    '<main><span class="back-link" onclick="go(\'cart\')">‹ Order</span>' +
+    '<h1 class="screen-title">Payment</h1><p class="screen-sub">Total due: ' + money(grandTotal()) + '</p>' +
+    '<div class="field"><label>Card number</label><input id="pf-card" placeholder="1234 5678 9012 3456" inputmode="numeric">' +
+    (e.card?'<div class="error-text">'+e.card+'</div>':'') + '</div>' +
+    '<div class="field-row">' +
+    '<div class="field"><label>Expiry</label><input id="pf-exp" placeholder="MM/YY">' + (e.exp?'<div class="error-text">'+e.exp+'</div>':'') + '</div>' +
+    '<div class="field"><label>CVV</label><input id="pf-cvv" placeholder="123" inputmode="numeric">' + (e.cvv?'<div class="error-text">'+e.cvv+'</div>':'') + '</div>' +
+    '</div>' +
+    '<div class="field"><label>Name on card</label><input id="pf-name" placeholder="Alex Rivera">' + (e.name?'<div class="error-text">'+e.name+'</div>':'') + '</div>' +
+    '<p class="screen-sub">Pickup at ' + S.location + '.</p>' +
+    '</main>' +
+    '<div class="sticky-bar"><button class="btn-primary" onclick="placeOrder()">Place order</button></div>';
+}
+
+function renderStatus(){
+  var labels = ['Order received', 'Preparing your order', 'Ready for pickup'];
+  var subs = ['We\'ve got your order.', 'Your drinks are being made.', 'Head to the counter — it\'s ready.'];
+  var stage = S.statusStage;
+  var dots = [0,1,2].map(function(i){ return '<div class="status-dot ' + (i<=stage?'active':'') + '"></div>'; }).join('');
+  return topbar(false) +
+    '<main><div class="status-wrap">' +
+    '<div class="status-steps">' + dots + '</div>' +
+    '<div class="status-card ' + (stage===2?'ready':'') + '">' +
+    '<div class="status-headline">' + labels[stage] + '</div>' +
+    '<div class="status-sub">' + subs[stage] + '</div></div>' +
+    '<div class="order-id">Order #' + S.orderNumber + ' · ' + S.location + '</div>' +
+    (stage===2 ? '<div style="margin-top:20px;"><span class="link-btn" onclick="newOrder()">Start a new order</span></div>' : '') +
+    '</div></main>';
+}
+
+function render(){
+  var html = '';
+  if(S.screen==='location') html = renderLocation();
+  else if(S.screen==='menu') html = renderMenu();
+  else if(S.screen==='detail') html = renderDetail();
+  else if(S.screen==='cart') html = renderCart();
+  else if(S.screen==='payment') html = renderPayment();
+  else if(S.screen==='status') html = renderStatus();
+  document.getElementById('app').innerHTML = html;
+}
+render();
+</script>
+</body>
+</html>
