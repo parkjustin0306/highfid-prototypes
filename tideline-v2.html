@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tideline — Redesigned</title>
+<style>
+:root{
+  --bg:#F6F1E7; --surface:#FFFFFF; --line:#E6DFCF; --line-strong:#D6CBAF;
+  --text:#3D4A47; --text-sec:#5E5A4D; --text-muted:#6E685A;
+  --aqua:#5C9E93; --aqua-deep:#3D4A47; --aqua-tint:#E4F0ED;
+  --terra:#C9724F; --terra-deep:#5A2C17; --terra-tint:#F7E4D8;
+  --danger:#B3573B; --danger-tint:#FBE9E2;
+  --on-solid:#FFFFFF; --scrim:rgba(36,34,32,.45);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#242220; --surface:#2E2B27; --line:#443F38; --line-strong:#5A5348;
+    --text:#F2EDE2; --text-sec:#BDB4A2; --text-muted:#9A917F;
+    --aqua:#7FB8AC; --aqua-deep:#E4F0ED; --aqua-tint:#33453F;
+    --terra:#E2A07E; --terra-deep:#F7E4D8; --terra-tint:#4A3226;
+    --danger:#E2A07E; --danger-tint:#4A3226;
+    --on-solid:#1C2422; --scrim:rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#242220; --surface:#2E2B27; --line:#443F38; --line-strong:#5A5348;
+  --text:#F2EDE2; --text-sec:#BDB4A2; --text-muted:#9A917F;
+  --aqua:#7FB8AC; --aqua-deep:#E4F0ED; --aqua-tint:#33453F;
+  --terra:#E2A07E; --terra-deep:#F7E4D8; --terra-tint:#4A3226;
+  --danger:#E2A07E; --danger-tint:#4A3226;
+  --on-solid:#1C2422; --scrim:rgba(0,0,0,.6);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+button{font:inherit; color:inherit; cursor:pointer; border:none; background:none; padding:0; text-align:left;}
+button:focus-visible, input:focus-visible{outline:2px solid var(--aqua); outline-offset:2px;}
+body{
+  margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;
+}
+#app{max-width:460px; margin:0 auto; min-height:100vh;}
+svg{display:block; flex-shrink:0;}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--bg);
+  padding:10px 20px 4px; display:flex; align-items:center; justify-content:space-between; min-height:56px;
+}
+.brand{display:flex; align-items:center; gap:8px; font-size:20px; font-weight:600; color:var(--aqua-deep); letter-spacing:-.01em; padding:8px 0;}
+.brand svg{color:var(--aqua);}
+.bag-btn{
+  position:relative; width:44px; height:44px; border-radius:50%; background:var(--aqua-tint);
+  color:var(--aqua-deep); display:flex; align-items:center; justify-content:center;
+}
+.bag-btn[disabled]{opacity:.5; cursor:default;}
+.bag-count{
+  position:absolute; top:-2px; right:-2px; min-width:20px; height:20px; border-radius:10px; padding:0 5px;
+  background:var(--terra); color:var(--on-solid); font-size:11px; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+}
+.icon-btn{width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--text);}
+.topbar-title{font-size:17px; font-weight:600; color:var(--aqua-deep);}
+.topbar .icon-btn:first-child{margin-left:-10px;}
+.topbar .spacer{width:44px;}
+
+main{padding:6px 20px 150px;}
+h1.title{font-size:24px; font-weight:600; margin:14px 0 14px; color:var(--aqua-deep); letter-spacing:-.01em;}
+.h2{font-size:14px; font-weight:600; color:var(--text); margin:24px 0 10px;}
+
+/* ---------- pickup chip ---------- */
+.pickup{
+  width:100%; display:flex; align-items:center; gap:10px; background:var(--surface);
+  border:1px solid var(--line); border-radius:16px; padding:10px 14px; min-height:52px; margin-top:4px;
+}
+.pickup .ic{color:var(--aqua); }
+.pickup-text{flex:1; min-width:0;}
+.pickup-label{font-size:11px; color:var(--text-muted);}
+.pickup-name{font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pickup-eta{font-size:12px; color:var(--aqua-deep); background:var(--aqua-tint); border-radius:12px; padding:4px 9px; white-space:nowrap;}
+.pickup .chev{color:var(--text-muted);}
+
+/* ---------- quick row ---------- */
+.quick-row{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+.quick{
+  display:flex; align-items:center; gap:7px; min-height:44px; padding:0 16px; border-radius:22px;
+  background:var(--terra-tint); color:var(--terra-deep); font-size:14px; font-weight:500;
+}
+.quick.alt{background:var(--aqua-tint); color:var(--aqua-deep);}
+
+/* ---------- drink cards ---------- */
+.drink{
+  display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--line);
+  border-radius:20px; padding:10px 10px 10px 10px; margin-bottom:10px;
+}
+.drink-main{flex:1; min-width:0; display:flex; gap:14px; align-items:center; padding:4px; border-radius:14px;}
+.drink-icon{position:relative; width:80px; height:80px; border-radius:20px; flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+.drink-badge{
+  position:absolute; top:-6px; left:-6px; min-width:22px; height:22px; border-radius:11px; padding:0 6px;
+  background:var(--aqua-deep); color:var(--on-solid); font-size:12px; font-weight:600;
+  display:flex; align-items:center; justify-content:center; border:2px solid var(--surface);
+}
+.drink-title{font-size:17px; font-weight:600;}
+.drink-desc{font-size:12px; color:var(--text-sec); margin-top:2px; line-height:1.4;}
+.drink-meta{font-size:13px; color:var(--text-sec); margin-top:6px;}
+.drink-meta b{font-weight:600; color:var(--text);}
+.drink-meta span{color:var(--aqua); font-weight:500;}
+.add-btn{
+  width:48px; height:48px; border-radius:50%; background:var(--aqua-deep); color:var(--on-solid);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform .12s;
+}
+.add-btn:active{transform:scale(.9);}
+
+/* ---------- bottom bars ---------- */
+.bar{position:fixed; left:0; right:0; bottom:0; z-index:20;}
+.bar-in{
+  max-width:460px; margin:0 auto; padding:18px 20px calc(12px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(to top, var(--bg) 72%, transparent);
+}
+.cta{
+  width:100%; min-height:56px; border-radius:28px; background:var(--aqua-deep); color:var(--on-solid);
+  display:flex; align-items:center; justify-content:space-between; padding:0 22px; font-size:16px; font-weight:600;
+}
+.cta .sub{font-size:13px; font-weight:500; opacity:.85;}
+.cta.center{justify-content:center; gap:8px;}
+.cta[disabled]{opacity:.65; cursor:default;}
+.bar.bump .cta{animation:bump .35s ease-out;}
+@keyframes bump{40%{transform:scale(1.025);}}
+.bar-note{font-size:12px; color:var(--text-sec); text-align:center; margin:0 0 8px;}
+
+/* ---------- toast ---------- */
+#toast{position:fixed; left:0; right:0; bottom:calc(88px + env(safe-area-inset-bottom,0px)); z-index:40; display:flex; justify-content:center; pointer-events:none; padding:0 20px;}
+.toast{
+  pointer-events:auto; background:var(--aqua-deep); color:var(--on-solid); border-radius:14px; padding:4px 6px 4px 16px;
+  display:flex; align-items:center; gap:10px; font-size:14px; min-height:44px; max-width:420px;
+  animation:toast-in .2s ease-out;
+}
+.toast button{color:var(--on-solid); font-weight:600; text-decoration:underline; min-height:44px; padding:0 12px;}
+@keyframes toast-in{from{opacity:0; transform:translateY(8px);}}
+
+/* ---------- sheets ---------- */
+.backdrop{position:fixed; inset:0; background:var(--scrim); z-index:50;}
+.sheet{
+  position:fixed; left:0; right:0; bottom:0; z-index:51; max-width:460px; margin:0 auto; max-height:92%;
+  background:var(--bg); border-radius:26px 26px 0 0; display:flex; flex-direction:column;
+}
+.backdrop.enter{animation:fade .2s ease-out;}
+.sheet.enter{animation:slide-up .26s cubic-bezier(.2,.8,.2,1);}
+@keyframes fade{from{opacity:0;}}
+@keyframes slide-up{from{transform:translateY(40px); opacity:0;}}
+.grabber{width:38px; height:4px; border-radius:2px; background:var(--line-strong); margin:8px auto 0;}
+.sheet-head{display:flex; align-items:center; gap:12px; padding:10px 12px 8px 20px;}
+.sheet-head .t{flex:1; min-width:0;}
+.art-tile{width:76px; height:76px; border-radius:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.art-tile svg{transition:transform .2s ease;}
+.status-art{width:112px; height:112px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 14px;}
+.live .steam path{animation:rise 2.4s ease-in-out infinite;}
+.live .steam path:nth-child(2){animation-delay:.6s;} .live .steam path:nth-child(3){animation-delay:1.2s;}
+@keyframes rise{0%{opacity:0; transform:translateY(6px);} 50%{opacity:1;} 100%{opacity:0; transform:translateY(-6px);}}
+.empty .art-tile{margin:0 auto 18px; width:120px; height:120px; border-radius:50%;}
+.sheet-title{font-size:20px; font-weight:600; color:var(--aqua-deep);}
+.sheet-sub{font-size:12px; color:var(--text-sec); margin-top:2px;}
+.sheet-body{overflow-y:auto; padding:0 20px 12px; overscroll-behavior:contain;}
+.sheet-foot{padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--line); display:flex; gap:12px; align-items:center; background:var(--bg);}
+.opt-label{font-size:13px; font-weight:600; margin:16px 0 8px;}
+.seg{display:grid; gap:8px;}
+.seg.c3{grid-template-columns:repeat(3,1fr);} .seg.c2{grid-template-columns:repeat(2,1fr);}
+.seg button, .pill{
+  min-height:48px; border:1px solid var(--line-strong); border-radius:14px; background:var(--surface);
+  color:var(--text); display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-size:14px; padding:6px 10px; text-align:center;
+}
+.seg button small{font-size:11px; color:var(--text-sec); margin-top:1px;}
+.seg button[aria-pressed="true"], .pill[aria-pressed="true"]{background:var(--aqua); border-color:var(--aqua); color:var(--on-solid);}
+.seg button[aria-pressed="true"] small{color:var(--on-solid); opacity:.9;}
+.pill-row{display:flex; flex-wrap:wrap; gap:8px;}
+.pill{flex-direction:row; border-radius:24px; padding:0 18px;}
+.toggle-row{
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:56px;
+  background:var(--surface); border:1px solid var(--line-strong); border-radius:14px; padding:6px 16px;
+}
+.toggle-row .l{font-size:14px;}
+.toggle-row .l small{display:block; font-size:12px; color:var(--text-sec);}
+.switch{width:48px; height:28px; border-radius:14px; background:var(--line-strong); position:relative; flex-shrink:0; transition:background .15s;}
+.switch::after{content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition:transform .15s;}
+.toggle-row[aria-checked="true"] .switch{background:var(--terra);}
+.toggle-row[aria-checked="true"] .switch::after{transform:translateX(20px);}
+.stepper{display:flex; align-items:center; background:var(--surface); border:1px solid var(--line-strong); border-radius:24px; flex-shrink:0;}
+.stepper button{width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:50%; color:var(--text);}
+.stepper button[disabled]{opacity:.35; cursor:default;}
+.stepper .n{min-width:22px; text-align:center; font-weight:600; font-size:15px;}
+.sheet-foot .cta{flex:1;}
+
+.loc-row{
+  width:100%; display:flex; align-items:center; gap:14px; background:var(--surface); border:1.5px solid var(--line);
+  border-radius:16px; padding:12px 14px; min-height:64px; margin-bottom:10px;
+}
+.loc-row[aria-checked="true"]{border-color:var(--aqua); background:var(--aqua-tint);}
+.loc-row .t{flex:1;}
+.loc-name{font-size:15px; font-weight:600;} .loc-sub{font-size:12px; color:var(--text-sec); margin-top:2px;}
+.loc-wait{font-size:12px; color:var(--aqua-deep); font-weight:500;}
+.radio{width:22px; height:22px; border-radius:50%; border:2px solid var(--line-strong); display:flex; align-items:center; justify-content:center; color:transparent; flex-shrink:0;}
+[aria-checked="true"] > .radio{background:var(--aqua); border-color:var(--aqua); color:var(--on-solid);}
+
+/* ---------- checkout ---------- */
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:14px; margin-bottom:10px;}
+.chip-row{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+.chip{min-height:44px; padding:0 14px; border-radius:22px; border:1px solid var(--line-strong); font-size:13px; display:flex; align-items:center;}
+.chip[aria-pressed="true"]{background:var(--aqua); border-color:var(--aqua); color:var(--on-solid); font-weight:500;}
+.panel-top{display:flex; align-items:center; gap:12px;}
+.panel-top .t{flex:1; min-width:0;}
+.link{color:var(--aqua-deep); font-size:13px; font-weight:600; min-height:44px; display:inline-flex; align-items:center; padding:0 4px; text-decoration:underline; text-underline-offset:3px;}
+.line{display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line);}
+.line:last-of-type{border-bottom:none;}
+.line-icon{width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.line .t{flex:1; min-width:0;}
+.line-title{font-size:15px; font-weight:600;}
+.line-desc{font-size:12px; color:var(--text-sec); margin-top:2px; line-height:1.45;}
+.line-price{font-size:15px; font-weight:600; white-space:nowrap;}
+.line-actions{display:flex; align-items:center; justify-content:space-between; margin-top:4px;}
+.add-more{width:100%; display:flex; align-items:center; justify-content:center; gap:8px; min-height:48px; border:1.5px dashed var(--line-strong); border-radius:16px; color:var(--aqua-deep); font-weight:600; font-size:14px; margin-bottom:6px;}
+.pay-opt{
+  width:100%; display:flex; align-items:center; gap:12px; min-height:60px; padding:10px 14px;
+  background:var(--surface); border:1.5px solid var(--line); border-radius:16px; margin-bottom:8px;
+}
+.pay-opt[aria-checked="true"]{border-color:var(--aqua); background:var(--aqua-tint);}
+.pay-opt .t{flex:1;} .pay-name{font-size:15px; font-weight:600;} .pay-sub{font-size:12px; color:var(--text-sec);}
+.pay-ic{width:36px; height:36px; border-radius:10px; background:var(--bg); display:flex; align-items:center; justify-content:center; color:var(--aqua-deep);}
+.card-form{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:14px; margin:-2px 0 8px;}
+.field{margin-bottom:12px;} .field:last-child{margin-bottom:0;}
+.field label{font-size:12px; color:var(--text-sec); display:block; margin-bottom:6px;}
+.field input{
+  width:100%; min-height:48px; padding:0 14px; border:1px solid var(--line-strong); border-radius:12px;
+  font-size:16px; background:var(--bg); color:var(--text);
+}
+.field input.invalid{border-color:var(--danger); background:var(--danger-tint);}
+.field-row{display:flex; gap:10px;} .field-row .field{flex:1;}
+.err{font-size:12px; color:var(--danger); margin-top:5px; min-height:0;}
+.err:empty{display:none;}
+.totals{margin-top:16px; padding:4px 4px 0;}
+.total-row{display:flex; justify-content:space-between; font-size:14px; color:var(--text-sec); padding:4px 0;}
+.total-row.grand{font-size:18px; font-weight:600; color:var(--text); padding-top:10px; margin-top:6px; border-top:1px solid var(--line);}
+.empty{text-align:center; padding:60px 10px;}
+.empty p{color:var(--text-sec); font-size:14px; margin:0 0 20px;}
+.empty .cta{display:inline-flex; width:auto; padding:0 28px;}
+
+/* ---------- status ---------- */
+.done-ic{width:64px; height:64px; border-radius:50%; background:var(--aqua); color:var(--on-solid); display:flex; align-items:center; justify-content:center; margin:18px auto 14px; animation:pop .4s cubic-bezier(.2,1.4,.4,1);}
+@keyframes pop{from{transform:scale(.4); opacity:0;}}
+.center-t{text-align:center;}
+.status-card{border-radius:22px; background:var(--surface); border:1px solid var(--line); padding:24px 18px; text-align:center; margin-top:14px; transition:background .3s;}
+.status-card.ready{background:var(--terra-tint); border-color:transparent;}
+.status-headline{font-size:21px; font-weight:600; color:var(--aqua-deep);}
+.status-card.ready .status-headline{color:var(--terra-deep);}
+.status-sub{font-size:14px; color:var(--text-sec); margin-top:6px;}
+.status-card.ready .status-sub{color:var(--terra-deep);}
+.big-num{font-size:44px; font-weight:700; letter-spacing:.02em; color:var(--terra-deep); margin-top:10px;}
+.tracker{display:grid; grid-template-columns:repeat(3,1fr); margin:22px 0 6px; position:relative;}
+.tracker::before{content:""; position:absolute; top:13px; left:16.6%; right:16.6%; height:3px; background:var(--line-strong); border-radius:2px;}
+.tracker .fill{position:absolute; top:13px; left:16.6%; height:3px; background:var(--aqua); border-radius:2px; transition:width .6s ease; width:0;}
+.step{position:relative; text-align:center; font-size:12px; color:var(--text-muted); padding:0 4px;}
+.step .dot{width:28px; height:28px; border-radius:50%; background:var(--bg); border:3px solid var(--line-strong); margin:0 auto 8px; display:flex; align-items:center; justify-content:center; color:var(--on-solid); transition:all .3s;}
+.step.done .dot{background:var(--aqua); border-color:var(--aqua);}
+.step.now .dot{border-color:var(--aqua); background:var(--surface); box-shadow:0 0 0 5px var(--aqua-tint);}
+.step.now, .step.done{color:var(--text);}
+.step.now{font-weight:600;}
+.summary-line{display:flex; justify-content:space-between; font-size:13px; padding:5px 0; color:var(--text-sec);}
+.summary-line span:first-child{color:var(--text);}
+.link-center{display:flex; justify-content:center; margin-top:10px;}
+
+#hud{position:fixed; top:calc(4px + env(safe-area-inset-top,0px)); right:8px; z-index:99; font:11px ui-monospace,Menlo,monospace; background:rgba(0,0,0,.75); color:#fff; padding:4px 8px; border-radius:8px; pointer-events:none; display:none;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="toast" aria-live="polite"></div>
+<div id="hud"></div>
+
+<script>
+/* ============ DATA ============ */
+// Prototype switch: which payment method is preselected at checkout.
+// 'saved' = one-tap pay with the saved card. Use 'card' to make testers type a card.
+var DEFAULT_PAY = 'saved';
+
+var DRINKS = [
+  {id:'brewed', name:'Brewed', price:3.50, desc:'Drip coffee, full-bodied and easy to sip on the sand', milk:true, tint:'#E7D9C4', fg:'#7A5A32'},
+  {id:'espresso', name:'Espresso', price:2.75, desc:'A bold little shot, no fuss', milk:false, tint:'#D9CFC4', fg:'#4A3A2C'},
+  {id:'cappuccino', name:'Cappuccino', price:5.00, desc:'Espresso with steamed milk and foam', milk:true, tint:'#E4F0ED', fg:'#3D4A47'}
+];
+var SIZES = [{id:'normale',label:'Normale',delta:0},{id:'gigante',label:'Gigante',delta:1.5},{id:'troppo',label:'Troppo',delta:2.0}];
+var MILKS = ['Whole','Oat','Almond','Non-fat','None'];
+var SWEET = ['None','Sugar','Honey','Vanilla syrup'];
+var TEMPS = ['Hot','Iced'];
+var SHOT_PRICE = 0.75, TAX_RATE = 0.08;
+var LOCATIONS = [
+  {name:'Beachside — Original', sub:'12 Shoreline Ave', wait:5},
+  {name:'Harbor Walk', sub:'88 Marina Blvd', wait:8},
+  {name:'Palm Grove', sub:'204 Palm St', wait:6},
+  {name:'Sunset Pier', sub:'1 Pier Rd', wait:12}
+];
+var PICKUPS = [{id:'asap', label:'ASAP'},{id:'15', label:'In 15 min', mins:15},{id:'30', label:'In 30 min', mins:30}];
+
+/* ============ STATE ============ */
+var S = {
+  screen:'menu', locIndex:0, cart:[], uid:1,
+  sheet:null, sheetFresh:false, config:null, editId:null, qty:1, surprise:false,
+  pickup:'asap', pay:DEFAULT_PAY, card:{num:'',exp:'',cvv:'',name:''}, errors:{}, paying:false,
+  stage:0, order:null, lastOrder:null, toast:null, bump:false, timers:[]
+};
+var $ = function(id){ return document.getElementById(id); };
+
+/* ============ HELPERS ============ */
+
+/* ============ DRINK ILLUSTRATIONS (inline SVG, no external images) ============ */
+function logoMark(){ return '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2.5 9c3-3.2 5 3.2 9.5 0s6.5 3.2 9.5 0"/><path d="M2.5 15.5c3-3.2 5 3.2 9.5 0s6.5 3.2 9.5 0"/></svg>'; }
+var STEAM = function(dy){ return '<g class="steam" transform="translate(0 '+dy+')" stroke="#4A3A2C" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"><path d="M46 30c-5-5 5-8 0-14"/><path d="M60 28c-5-5 5-8 0-14"/><path d="M74 30c-5-5 5-8 0-14"/></g>'; };
+function hotArt(id){
+  if(id==='brewed') return '<ellipse cx="56" cy="106" rx="36" ry="5" fill="#000" opacity=".08"/>' + STEAM(8) +
+    '<path d="M78 58h6a11 11 0 0 1 0 22h-6" stroke="#7A5A32" stroke-width="6" stroke-linecap="round"/>' +
+    '<path d="M28 48h52v36a18 18 0 0 1-18 18H46a18 18 0 0 1-18-18z" fill="#FFF8EC" stroke="#7A5A32" stroke-width="3"/>' +
+    '<ellipse cx="54" cy="48" rx="26" ry="6" fill="#6B4423" stroke="#7A5A32" stroke-width="3"/>' +
+    '<path d="M38 70h32" stroke="#E7D9C4" stroke-width="4" stroke-linecap="round"/>';
+  if(id==='espresso') return '<ellipse cx="60" cy="104" rx="42" ry="5" fill="#000" opacity=".08"/>' + STEAM(24) +
+    '<ellipse cx="58" cy="94" rx="38" ry="8" fill="#FFF8EC" stroke="#4A3A2C" stroke-width="3"/>' +
+    '<path d="M78 68h5a8 8 0 0 1 0 16h-5" stroke="#4A3A2C" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M38 62h40v10a20 20 0 0 1-40 0z" fill="#FFF8EC" stroke="#4A3A2C" stroke-width="3"/>' +
+    '<ellipse cx="58" cy="62" rx="20" ry="5" fill="#3A2415" stroke="#4A3A2C" stroke-width="3"/><ellipse cx="58" cy="62" rx="14" ry="3" fill="#B8864E"/>';
+  return '<ellipse cx="58" cy="106" rx="44" ry="5" fill="#000" opacity=".08"/>' + STEAM(18) +
+    '<ellipse cx="56" cy="96" rx="40" ry="8" fill="#FFF8EC" stroke="#3D4A47" stroke-width="3"/>' +
+    '<path d="M86 58h5a10 10 0 0 1 0 20h-6" stroke="#3D4A47" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M24 52H88C88 78 76 94 56 94S24 78 24 52Z" fill="#FFF8EC" stroke="#3D4A47" stroke-width="3"/>' +
+    '<ellipse cx="56" cy="52" rx="32" ry="7" fill="#F3E3C8" stroke="#3D4A47" stroke-width="3"/><ellipse cx="56" cy="52.5" rx="25" ry="5" fill="#C8956A"/>' +
+    '<ellipse cx="56" cy="51" rx="13" ry="2.6" fill="#fff"/><ellipse cx="56" cy="53.4" rx="8" ry="1.8" fill="#fff"/>';
+}
+function icedArt(id){
+  var layers = id==='cappuccino' ? [['#F1E4CF',.42],['#9A6A3E',.58]] : id==='brewed' ? [['#7A4A24',1]] : [['#3B2416',1]];
+  var level = id==='espresso' ? .55 : .86, yb = 99, yt = yb - level*(yb-38);
+  var xl = function(y){ return 32 + (y-26)*8/76 + 3; }, xr = function(y){ return 88 - (y-26)*8/76 - 3; };
+  var out = '<ellipse cx="60" cy="108" rx="30" ry="4" fill="#000" opacity=".08"/>' +
+    '<path d="M32 26H88L80 100Q79.5 104 75 104H45Q40.5 104 40 100Z" fill="#fff" fill-opacity=".4"/>';
+  var y = yt;
+  layers.forEach(function(l){
+    var y2 = y + l[1]*(yb-yt);
+    out += '<path d="M'+xl(y)+' '+y+'H'+xr(y)+'L'+xr(y2)+' '+y2+'H'+xl(y2)+'Z" fill="'+l[0]+'"/>'; y = y2;
+  });
+  out += '<rect x="44" y="'+(yt-5)+'" width="17" height="17" rx="4" transform="rotate(-12 52 '+(yt+3)+')" fill="#fff" fill-opacity=".6" stroke="#fff" stroke-width="1.5"/>' +
+    '<rect x="62" y="'+(yt+12)+'" width="16" height="16" rx="4" transform="rotate(10 70 '+(yt+20)+')" fill="#fff" fill-opacity=".5" stroke="#fff" stroke-width="1.5"/>' +
+    '<path d="M72 8L62 80" stroke="#C9724F" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M32 26H88L80 100Q79.5 104 75 104H45Q40.5 104 40 100Z" stroke="#4A5E5A" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M40 36L44 90" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-linecap="round"/>';
+  return out;
+}
+function drinkArt(id, temp, size){
+  size = size || 64;
+  return '<svg class="art" width="'+size+'" height="'+size+'" viewBox="0 0 120 120" fill="none" aria-hidden="true">' + (temp==='Iced' ? icedArt(id) : hotArt(id)) + '</svg>';
+}
+var ART_SCALE = {normale:.86, gigante:.96, troppo:1.06};
+
+var ICONS = {
+  pin:'<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.2"/>',
+  bag:'<path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  chev:'<path d="M6 9l6 6 6-6"/>', back:'<path d="M15 5l-7 7 7 7"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', minus:'<path d="M5 12h14"/>',
+  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>', close:'<path d="M6 6l12 12M18 6L6 18"/>',
+  card:'<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18"/>',
+  wallet:'<path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z"/><path d="M4 7l2-3h10"/><circle cx="16" cy="13.5" r="1"/>',
+  spark:'<path d="M12 4l1.8 5.2L19 11l-5.2 1.8L12 18l-1.8-5.2L5 11l5.2-1.8L12 4z"/>',
+  repeat:'<path d="M4 11a7 7 0 0 1 12-4l3 3M20 13a7 7 0 0 1-12 4l-3-3M19 5v5h-5M5 19v-5h5"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16v4z"/>'
+};
+function icon(n, size, sw){
+  return '<svg width="'+(size||20)+'" height="'+(size||20)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(sw||1.8)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICONS[n]+'</svg>';
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function money(n){ return '$' + n.toFixed(2); }
+function drinkOf(id){ return DRINKS.find(function(d){return d.id===id;}); }
+function sizeOf(id){ return SIZES.find(function(s){return s.id===id;}); }
+function loc(){ return LOCATIONS[S.locIndex]; }
+function unitPrice(c){ return drinkOf(c.drinkId).price + sizeOf(c.size).delta + (c.shot ? SHOT_PRICE : 0); }
+function cartCount(){ return S.cart.reduce(function(n,i){return n+i.qty;},0); }
+function subtotal(){ return S.cart.reduce(function(n,i){return n + unitPrice(i)*i.qty;},0); }
+function tax(){ return subtotal()*TAX_RATE; }
+function total(){ return subtotal()+tax(); }
+function countOf(drinkId){ return S.cart.reduce(function(n,i){return i.drinkId===drinkId ? n+i.qty : n;},0); }
+function describe(c){
+  var d = drinkOf(c.drinkId);
+  var parts = [sizeOf(c.size).label];
+  if(d.milk) parts.push(c.milk==='None' ? 'Black' : c.milk + ' milk');
+  if(c.sweet!=='None') parts.push(c.sweet);
+  parts.push(c.temp);
+  if(c.shot) parts.push('Extra shot');
+  return parts.join(' · ');
+}
+function key(c){ return [c.drinkId,c.size,c.milk,c.sweet,c.temp,c.shot].join('|'); }
+function defaultConfig(id){
+  var d = drinkOf(id);
+  return {drinkId:id, size:'normale', milk:d.milk?'Whole':'None', sweet:'None', temp:'Hot', shot:false};
+}
+function readyTime(){
+  var mins;
+  if(S.pickup==='asap') mins = loc().wait; else mins = PICKUPS.find(function(p){return p.id===S.pickup;}).mins;
+  return new Date(Date.now()+mins*60000).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+}
+
+/* ============ CART ACTIONS ============ */
+function addItem(cfg, qty){
+  var k = key(cfg), found = S.cart.find(function(i){return key(i)===k;});
+  if(found){ found.qty += qty; S.bump = true; return found; }
+  var item = Object.assign({}, cfg, {id:S.uid++, qty:qty});
+  S.cart.push(item); S.bump = true; return item;
+}
+function quickAdd(drinkId){
+  var item = addItem(defaultConfig(drinkId), 1);
+  var id = item.id;
+  render();
+  showToast('Added ' + drinkOf(drinkId).name, function(){ changeQty(id, -1, true); });
+}
+function changeQty(id, delta, silent){
+  var i = S.cart.findIndex(function(x){return x.id===id;});
+  if(i<0) return;
+  var item = S.cart[i];
+  if(item.qty + delta <= 0){
+    S.cart.splice(i,1);
+    render();
+    if(!silent){
+      showToast('Removed ' + drinkOf(item.drinkId).name, function(){
+        item.qty = 1; S.cart.splice(Math.min(i,S.cart.length),0,item); render();
+      });
+    } else hideToast();
+    return;
+  }
+  item.qty += delta; render();
+}
+
+/* ============ NAV ============ */
+function go(screen){ S.screen = screen; S.sheet = null; hideToast(); render(); window.scrollTo(0,0); }
+function openCart(){ if(cartCount()) go('checkout'); }
+
+/* ============ SHEETS ============ */
+function openCustom(drinkId){
+  S.config = defaultConfig(drinkId); S.editId = null; S.qty = 1; S.surprise = false;
+  S.sheet = 'custom'; S.sheetFresh = true; renderLayer();
+}
+function editItem(id){
+  var it = S.cart.find(function(x){return x.id===id;});
+  S.config = {drinkId:it.drinkId,size:it.size,milk:it.milk,sweet:it.sweet,temp:it.temp,shot:it.shot};
+  S.editId = id; S.qty = it.qty; S.surprise = false;
+  S.sheet = 'custom'; S.sheetFresh = true; renderLayer();
+}
+function surpriseMe(){
+  var d = DRINKS[Math.floor(Math.random()*DRINKS.length)];
+  var c = defaultConfig(d.id);
+  c.size = SIZES[Math.floor(Math.random()*SIZES.length)].id;
+  c.temp = TEMPS[Math.floor(Math.random()*TEMPS.length)];
+  if(d.milk) c.milk = MILKS[Math.floor(Math.random()*(MILKS.length-1))];
+  S.config = c; S.editId = null; S.qty = 1; S.surprise = true;
+  S.sheet = 'custom'; S.sheetFresh = true; renderLayer();
+}
+function openLocations(){ S.sheet = 'loc'; S.sheetFresh = true; renderLayer(); }
+function closeSheet(){ S.sheet = null; renderLayer(); }
+function setCfg(f, v){ S.config[f] = v; renderLayer(); }
+function toggleShot(){ S.config.shot = !S.config.shot; renderLayer(); }
+function sheetQty(d){ S.qty = Math.max(1, Math.min(10, S.qty + d)); renderLayer(); }
+function confirmSheet(){
+  var name = drinkOf(S.config.drinkId).name;
+  if(S.editId !== null){
+    var it = S.cart.find(function(x){return x.id===S.editId;});
+    Object.assign(it, S.config, {qty:S.qty});
+    var dupe = S.cart.find(function(x){return x.id!==it.id && key(x)===key(it);});
+    if(dupe){ dupe.qty += it.qty; S.cart.splice(S.cart.indexOf(it),1); }
+    S.sheet = null; render(); showToast('Updated ' + name);
+  } else {
+    addItem(S.config, S.qty);
+    var added = S.qty, k = key(S.config);
+    S.sheet = null; render();
+    showToast('Added ' + (added>1 ? added+' × ' : '') + name, function(){
+      var f = S.cart.find(function(x){return key(x)===k;});
+      if(f) changeQty(f.id, -added, true);
+    });
+  }
+}
+function selectLocation(i){ S.locIndex = i; S.sheet = null; render(); }
+function reorder(){
+  if(!S.lastOrder) return;
+  S.lastOrder.items.forEach(function(it){ addItem(it, it.qty); });
+  render(); showToast('Added your last order');
+}
+
+/* ============ TOAST ============ */
+var toastTimer;
+function showToast(msg, undo){
+  S.toast = {msg:msg, undo:undo||null};
+  renderToast();
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, undo ? 4500 : 2200);
+}
+function hideToast(){ S.toast = null; renderToast(); }
+function undoToast(){ var u = S.toast && S.toast.undo; hideToast(); if(u) u(); }
+function renderToast(){
+  $('toast').innerHTML = S.toast ?
+    '<div class="toast"><span>' + esc(S.toast.msg) + '</span>' + (S.toast.undo ? '<button onclick="undoToast()">Undo</button>' : '') + '</div>' : '';
+}
+
+/* ============ CHECKOUT ============ */
+function setPickup(id){ S.pickup = id; render(); }
+function setPay(m){ S.pay = m; S.errors = {}; render(); }
+var FIELDS = ['num','exp','cvv','name'];
+function validateField(f){
+  var v = S.card[f], d = v.replace(/\D/g,'');
+  if(f==='num') return (d.length===15 || d.length===16) ? '' : 'Card numbers have 15 or 16 digits';
+  if(f==='exp'){
+    var m = /^(\d{2})\/(\d{2})$/.exec(v);
+    if(!m) return 'Enter as MM/YY';
+    var mm = +m[1], yy = +m[2], now = new Date();
+    if(mm<1 || mm>12) return 'Month must be 01–12';
+    if(yy < now.getFullYear()%100 || (yy===now.getFullYear()%100 && mm < now.getMonth()+1)) return 'This card has expired';
+    return '';
+  }
+  if(f==='cvv') return (d.length===3 || d.length===4) ? '' : 'Enter the 3 or 4 digit code';
+  if(f==='name') return v.trim() ? '' : 'Enter the name on your card';
+}
+function setErr(f, msg){
+  S.errors[f] = msg;
+  var e = $('err-'+f), i = $('pf-'+f);
+  if(e) e.textContent = msg;
+  if(i){ i.classList.toggle('invalid', !!msg); i.setAttribute('aria-invalid', msg ? 'true':'false'); }
+}
+function onCardInput(f, el){
+  var v = el.value, d;
+  if(f==='num'){ d = v.replace(/\D/g,'').slice(0,16); v = d.replace(/(.{4})/g,'$1 ').trim(); }
+  else if(f==='exp'){ d = v.replace(/\D/g,'').slice(0,4); v = d.length>2 ? d.slice(0,2)+'/'+d.slice(2) : d; }
+  else if(f==='cvv'){ v = v.replace(/\D/g,'').slice(0,4); }
+  el.value = v; S.card[f] = v;
+  if(S.errors[f]) setErr(f, validateField(f));
+}
+function onCardBlur(f){ setErr(f, S.card[f] ? validateField(f) : ''); }
+function pay(){
+  if(S.paying || !cartCount()) return;
+  if(S.pay==='card'){
+    var firstBad = null;
+    FIELDS.forEach(function(f){ var m = validateField(f); setErr(f, m); if(m && !firstBad) firstBad = f; });
+    if(firstBad){ var el = $('pf-'+firstBad); el.focus(); el.scrollIntoView({block:'center', behavior:'smooth'}); return; }
+  }
+  S.paying = true; render();
+  setTimeout(placeOrder, 700);
+}
+function placeOrder(){
+  S.paying = false;
+  S.order = {
+    num: Math.floor(1000 + Math.random()*9000),
+    items: S.cart.map(function(i){return Object.assign({}, i);}),
+    total: total(), loc: loc(), ready: readyTime(), asap: S.pickup==='asap'
+  };
+  S.lastOrder = S.order; S.stage = 0;
+  if(HUD.on && !HUD.done) HUD.done = {t:Date.now()-HUD.t0, taps:HUD.taps};
+  go('status');
+  S.timers.push(setTimeout(function(){ if(S.screen==='status'){ S.stage = 1; render(); } }, 2000));
+  S.timers.push(setTimeout(function(){ if(S.screen==='status'){ S.stage = 2; render(); } }, 5000));
+}
+function newOrder(){
+  S.timers.forEach(clearTimeout); S.timers = [];
+  S.cart = []; S.stage = 0; S.pickup = 'asap'; S.pay = DEFAULT_PAY; S.card = {num:'',exp:'',cvv:'',name:''}; S.errors = {};
+  HUD.t0 = Date.now(); HUD.taps = 0; HUD.done = null;
+  go('menu');
+}
+function orderAgain(){ newOrder(); reorder(); }
+
+/* ============ SCREENS ============ */
+function renderMenu(){
+  var n = cartCount();
+  var cards = DRINKS.map(function(d){
+    var c = countOf(d.id);
+    return '<div class="drink">' +
+      '<button class="drink-main" onclick="openCustom(\'' + d.id + '\')" aria-label="Customize ' + d.name + '">' +
+        '<div class="drink-icon" style="background:' + d.tint + '">' + drinkArt(d.id, 'Hot', 68) + (c ? '<span class="drink-badge">' + c + '</span>' : '') + '</div>' +
+        '<div><div class="drink-title">' + d.name + '</div><div class="drink-desc">' + d.desc + '</div>' +
+        '<div class="drink-meta"><b>' + money(d.price) + '</b> · <span>Customize</span></div></div>' +
+      '</button>' +
+      '<button class="add-btn" onclick="quickAdd(\'' + d.id + '\')" aria-label="Quick add ' + d.name + ', ' + money(d.price) + '">' + icon('plus', 22, 2.2) + '</button>' +
+    '</div>';
+  }).join('');
+  var l = loc();
+  return '<header class="topbar"><span class="brand" onclick="brandTap()">' + logoMark() + 'Tideline</span>' +
+      '<button class="bag-btn" onclick="openCart()" ' + (n?'':'disabled') + ' aria-label="Your order, ' + n + ' items">' + icon('bag', 22) + (n ? '<span class="bag-count">' + n + '</span>' : '') + '</button></header>' +
+    '<main>' +
+    '<button class="pickup" onclick="openLocations()" aria-label="Pickup location: ' + esc(l.name) + '. Change">' +
+      '<span class="ic">' + icon('pin', 20) + '</span>' +
+      '<span class="pickup-text"><span class="pickup-label" style="display:block">Pickup at</span><span class="pickup-name" style="display:block">' + esc(l.name) + '</span></span>' +
+      '<span class="pickup-eta">~' + l.wait + ' min</span><span class="chev">' + icon('chev', 18) + '</span></button>' +
+    '<h1 class="title">What are you having?</h1>' +
+    '<div class="quick-row"><button class="quick" onclick="surpriseMe()">' + icon('spark', 18) + 'Surprise me</button>' +
+      (S.lastOrder ? '<button class="quick alt" onclick="reorder()">' + icon('repeat', 18) + 'Order again</button>' : '') + '</div>' +
+    cards + '</main>' +
+    (n ? '<div class="bar' + (S.bump?' bump':'') + '"><div class="bar-in"><button class="cta" onclick="openCart()"><span>Checkout</span><span class="sub">' + n + (n===1?' item':' items') + ' · ' + money(total()) + '</span></button></div></div>' : '');
+}
+
+function customSheet(){
+  var c = S.config, d = drinkOf(c.drinkId);
+  var price = unitPrice(c) * S.qty;
+  var sizes = SIZES.map(function(s){
+    return '<button aria-pressed="' + (c.size===s.id) + '" onclick="setCfg(\'size\',\'' + s.id + '\')">' + s.label + '<small>' + (s.delta ? '+' + money(s.delta) : 'Included') + '</small></button>';
+  }).join('');
+  var temps = TEMPS.map(function(t){
+    return '<button aria-pressed="' + (c.temp===t) + '" onclick="setCfg(\'temp\',\'' + t + '\')">' + t + '</button>';
+  }).join('');
+  var milks = d.milk ? '<div class="opt-label">Milk</div><div class="pill-row">' + MILKS.map(function(m){
+    return '<button class="pill" aria-pressed="' + (c.milk===m) + '" onclick="setCfg(\'milk\',\'' + m + '\')">' + m + '</button>';
+  }).join('') + '</div>' : '';
+  var sweets = SWEET.map(function(s){
+    return '<button class="pill" aria-pressed="' + (c.sweet===s) + '" onclick="setCfg(\'sweet\',\'' + s + '\')">' + s + '</button>';
+  }).join('');
+  return '<div class="sheet' + (S.sheetFresh?' enter':'') + '" role="dialog" aria-modal="true" aria-label="Customize ' + d.name + '">' +
+    '<div class="grabber"></div>' +
+    '<div class="sheet-head"><div class="art-tile" style="background:' + d.tint + '">' + drinkArt(c.drinkId, c.temp, 68).replace('class="art"', 'class="art" style="transform:scale(' + ART_SCALE[c.size] + ')"') + '</div><div class="t"><div class="sheet-title">' + d.name + '</div>' +
+      '<div class="sheet-sub">' + (S.surprise ? '✦ Surprise pick — tweak it or add as is' : 'Everything is preset — just tap add') + '</div></div>' +
+      '<button class="icon-btn" onclick="closeSheet()" aria-label="Close">' + icon('close', 22) + '</button></div>' +
+    '<div class="sheet-body">' +
+      '<div class="opt-label">Size</div><div class="seg c3">' + sizes + '</div>' +
+      '<div class="opt-label">Temperature</div><div class="seg c2">' + temps + '</div>' +
+      milks +
+      '<div class="opt-label">Sweetener</div><div class="pill-row">' + sweets + '</div>' +
+      '<div class="opt-label">Extra</div>' +
+      '<button class="toggle-row" role="switch" aria-checked="' + c.shot + '" onclick="toggleShot()"><span class="l">Extra shot<small>+' + money(SHOT_PRICE) + '</small></span><span class="switch"></span></button>' +
+    '</div>' +
+    '<div class="sheet-foot">' +
+      '<div class="stepper"><button onclick="sheetQty(-1)" ' + (S.qty<=1?'disabled':'') + ' aria-label="Fewer">' + icon('minus', 18, 2.2) + '</button><span class="n" aria-live="polite">' + S.qty + '</span><button onclick="sheetQty(1)" ' + (S.qty>=10?'disabled':'') + ' aria-label="More">' + icon('plus', 18, 2.2) + '</button></div>' +
+      '<button class="cta" onclick="confirmSheet()"><span>' + (S.editId!==null ? 'Update' : 'Add to order') + '</span><span class="sub">' + money(price) + '</span></button>' +
+    '</div></div>';
+}
+
+function locationSheet(){
+  var rows = LOCATIONS.map(function(l, i){
+    return '<button class="loc-row" role="radio" aria-checked="' + (i===S.locIndex) + '" onclick="selectLocation(' + i + ')">' +
+      '<span class="t"><span class="loc-name" style="display:block">' + esc(l.name) + '</span><span class="loc-sub" style="display:block">' + l.sub + '</span></span>' +
+      '<span class="loc-wait">~' + l.wait + ' min</span><span class="radio">' + icon('check', 14, 3) + '</span></button>';
+  }).join('');
+  return '<div class="sheet' + (S.sheetFresh?' enter':'') + '" role="dialog" aria-modal="true" aria-label="Choose pickup location">' +
+    '<div class="grabber"></div>' +
+    '<div class="sheet-head"><div class="t"><div class="sheet-title">Pickup location</div><div class="sheet-sub">Wait times are current estimates</div></div>' +
+      '<button class="icon-btn" onclick="closeSheet()" aria-label="Close">' + icon('close', 22) + '</button></div>' +
+    '<div class="sheet-body" role="radiogroup" style="padding-top:6px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))">' + rows + '</div></div>';
+}
+
+function renderCheckout(){
+  var topbar = '<header class="topbar"><button class="icon-btn" onclick="go(\'menu\')" aria-label="Back to menu">' + icon('back', 24) + '</button><span class="topbar-title">Checkout</span><span class="spacer"></span></header>';
+  if(!S.cart.length){
+    return topbar + '<main><div class="empty"><div class="art-tile" style="background:#E7D9C4">' + drinkArt('espresso','Hot',92) + '</div><h1 class="title">Your order is empty</h1><p>Add a drink to get started.</p><button class="cta center" onclick="go(\'menu\')">Browse drinks</button></div></main>';
+  }
+  var l = loc();
+  var chips = PICKUPS.map(function(p){
+    var label = p.id==='asap' ? 'ASAP · ~' + l.wait + ' min' : p.label;
+    return '<button class="chip" aria-pressed="' + (S.pickup===p.id) + '" onclick="setPickup(\'' + p.id + '\')">' + label + '</button>';
+  }).join('');
+  var lines = S.cart.map(function(it){
+    var d = drinkOf(it.drinkId);
+    return '<div class="line"><div class="line-icon" style="background:' + d.tint + '">' + drinkArt(it.drinkId, it.temp, 46) + '</div>' +
+      '<div class="t"><div class="line-title">' + d.name + '</div><div class="line-desc">' + describe(it) + '</div>' +
+      '<div class="line-actions"><button class="link" onclick="editItem(' + it.id + ')">Edit</button>' +
+      '<div class="stepper"><button onclick="changeQty(' + it.id + ',-1)" aria-label="' + (it.qty===1?'Remove ':'Fewer ') + d.name + '">' + icon(it.qty===1?'trash':'minus', 18, 2) + '</button><span class="n">' + it.qty + '</span><button onclick="changeQty(' + it.id + ',1)" aria-label="More ' + d.name + '">' + icon('plus', 18, 2.2) + '</button></div></div></div>' +
+      '<div class="line-price">' + money(unitPrice(it)*it.qty) + '</div></div>';
+  }).join('');
+  var card = S.card, e = S.errors;
+  function fld(f, label, ph, extra){
+    return '<div class="field"><label for="pf-' + f + '">' + label + '</label><input id="pf-' + f + '" class="' + (e[f]?'invalid':'') + '" value="' + esc(card[f]) + '" placeholder="' + ph + '" ' + extra +
+      ' oninput="onCardInput(\'' + f + '\',this)" onblur="onCardBlur(\'' + f + '\')"><div class="err" id="err-' + f + '" role="alert">' + (e[f]||'') + '</div></div>';
+  }
+  var form = S.pay==='card' ? '<div class="card-form">' +
+    fld('num','Card number','1234 5678 9012 3456','inputmode="numeric" autocomplete="cc-number"') +
+    '<div class="field-row">' + fld('exp','Expiry','MM/YY','inputmode="numeric" autocomplete="cc-exp" maxlength="5"') + fld('cvv','Security code','123','inputmode="numeric" autocomplete="cc-csc" maxlength="4"') + '</div>' +
+    fld('name','Name on card','Alex Rivera','autocomplete="cc-name"') + '</div>' : '';
+  function opt(id, ic, name, sub){
+    return '<button class="pay-opt" role="radio" aria-checked="' + (S.pay===id) + '" onclick="setPay(\'' + id + '\')"><span class="pay-ic">' + icon(ic, 20) + '</span><span class="t"><span class="pay-name" style="display:block">' + name + '</span><span class="pay-sub" style="display:block">' + sub + '</span></span><span class="radio">' + icon('check', 14, 3) + '</span></button>';
+  }
+  var payLabel = S.paying ? 'Placing order…' : 'Place order';
+  return topbar + '<main>' +
+    '<h1 class="title" style="margin-top:8px">Review &amp; pay</h1>' +
+    '<div class="panel"><div class="panel-top"><span style="color:var(--aqua)">' + icon('pin', 22) + '</span><div class="t"><div class="pickup-label">Pickup at</div><div class="pickup-name">' + esc(l.name) + '</div><div class="pickup-label">' + l.sub + '</div></div><button class="link" onclick="openLocations()">Change</button></div>' +
+      '<div class="chip-row" role="group" aria-label="Pickup time">' + chips + '</div></div>' +
+    '<div class="h2">Your order</div><div class="panel" style="padding-top:2px;padding-bottom:2px">' + lines + '</div>' +
+    '<button class="add-more" onclick="go(\'menu\')">' + icon('plus', 18, 2.2) + 'Add another drink</button>' +
+    '<div class="h2">Pay with</div><div role="radiogroup">' +
+      opt('saved','card','Visa •••• 4242','Saved card · Alex Rivera') +
+      opt('apple','wallet','Apple Pay','Pay with Face ID') +
+      opt('card','card','New card','Enter card details') + '</div>' + form +
+    '<div class="totals"><div class="total-row"><span>Subtotal</span><span>' + money(subtotal()) + '</span></div>' +
+      '<div class="total-row"><span>Tax</span><span>' + money(tax()) + '</span></div>' +
+      '<div class="total-row grand"><span>Total</span><span>' + money(total()) + '</span></div></div>' +
+    '</main>' +
+    '<div class="bar"><div class="bar-in"><p class="bar-note">Ready around ' + readyTime() + ' · ' + esc(l.name) + '</p>' +
+      '<button class="cta" onclick="pay()" ' + (S.paying?'disabled':'') + '><span>' + (S.pay==='apple' && !S.paying ? 'Pay with Apple Pay' : payLabel) + '</span><span class="sub">' + money(total()) + '</span></button></div></div>';
+}
+
+function renderStatus(){
+  var o = S.order, st = S.stage;
+  var labels = ['Received','Making','Ready'];
+  var heads = ['Order received','Making your drinks','Ready for pickup'];
+  var subs = [
+    'Thanks — we\'ve got it.',
+    o.asap ? 'Ready in about ' + Math.max(1, o.loc.wait - 1) + ' min.' : 'We\'ll start at the right time for ' + o.ready + '.',
+    'Show this number at the counter.'
+  ];
+  var steps = labels.map(function(t,i){
+    var cls = i<st ? 'done' : i===st ? 'now' : '';
+    return '<div class="step ' + cls + '"><div class="dot">' + (i<st ? icon('check', 14, 3.2) : '') + '</div>' + t + '</div>';
+  }).join('');
+  var items = o.items.map(function(it){
+    return '<div class="summary-line"><span>' + it.qty + ' × ' + drinkOf(it.drinkId).name + ' <span style="color:var(--text-muted)">· ' + describe(it).split(' · ').slice(0,2).join(', ') + '</span></span><span>' + money(unitPrice(it)*it.qty) + '</span></div>';
+  }).join('');
+  return '<header class="topbar"><span class="brand">' + logoMark() + 'Tideline</span><span></span></header><main>' +
+    '<div class="done-ic">' + icon('check', 32, 2.6) + '</div>' +
+    '<h1 class="title center-t" style="margin:0">Order placed</h1>' +
+    '<div class="status-card ' + (st===2?'ready':'') + (st===1?' live':'') + '" role="status"><div class="status-art" style="background:' + drinkOf(o.items[0].drinkId).tint + '">' + drinkArt(o.items[0].drinkId, o.items[0].temp, 88) + '</div><div class="status-headline">' + heads[st] + '</div><div class="status-sub">' + subs[st] + '</div>' +
+      (st===2 ? '<div class="big-num">#' + o.num + '</div>' : '') + '</div>' +
+    '<div class="tracker"><div class="fill" style="width:' + (st*33.3) + '%"></div>' + steps + '</div>' +
+    '<div class="panel" style="margin-top:18px"><div class="pickup-label" style="margin-bottom:6px">Order #' + o.num + ' · ' + esc(o.loc.name) + '</div>' + items +
+      '<div class="summary-line" style="border-top:1px solid var(--line);margin-top:6px;padding-top:10px"><span style="font-weight:600">Total paid</span><span style="font-weight:600;color:var(--text)">' + money(o.total) + '</span></div></div>' +
+    (st===2 ? '<div class="bar"><div class="bar-in"><button class="cta center" onclick="newOrder()">Start a new order</button><div class="link-center"><button class="link" onclick="orderAgain()">Order the same again</button></div></div></div>' : '') +
+    '</main>';
+}
+
+/* ============ RENDER ============ */
+function render(){
+  var html = S.screen==='menu' ? renderMenu() : S.screen==='checkout' ? renderCheckout() : renderStatus();
+  $('app').innerHTML = html;
+  S.bump = false;
+  renderLayer();
+}
+function renderLayer(){
+  var el = $('layer');
+  if(!S.sheet){ el.innerHTML = ''; return; }
+  var prev = el.querySelector('.sheet-body'), st = prev ? prev.scrollTop : 0;
+  var enter = S.sheetFresh ? ' enter' : '';
+  el.innerHTML = '<div class="backdrop' + enter + '" onclick="closeSheet()"></div>' + (S.sheet==='custom' ? customSheet() : locationSheet());
+  var nb = el.querySelector('.sheet-body'); if(nb) nb.scrollTop = st;
+  if(S.sheetFresh){ var cb = el.querySelector('.icon-btn'); if(cb) cb.focus({preventScroll:true}); }
+  S.sheetFresh = false;
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape' && S.sheet) closeSheet(); });
+
+/* ============ RESEARCHER HUD (tap the "Tideline" logo 5× quickly to toggle) ============ */
+var HUD = {on:false, taps:0, t0:0, done:null, hits:[]};
+document.addEventListener('click', function(){ if(HUD.on && !HUD.done) HUD.taps++; }, true);
+function brandTap(){
+  var now = Date.now(); HUD.hits.push(now);
+  HUD.hits = HUD.hits.filter(function(t){ return now - t < 2000; });
+  if(HUD.hits.length >= 5){
+    HUD.hits = []; HUD.on = !HUD.on; HUD.taps = 0; HUD.t0 = Date.now(); HUD.done = null;
+    $('hud').style.display = HUD.on ? 'block' : 'none';
+  }
+}
+setInterval(function(){
+  if(!HUD.on) return;
+  var ms = HUD.done ? HUD.done.t : Date.now() - HUD.t0, taps = HUD.done ? HUD.done.taps : HUD.taps;
+  var s = Math.floor(ms/1000);
+  $('hud').textContent = (HUD.done ? '✓ ' : '⏱ ') + Math.floor(s/60) + ':' + ('0'+(s%60)).slice(-2) + ' · ' + taps + ' taps';
+}, 250);
+
+render();
+</script>
+</body>
+</html>
